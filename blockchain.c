@@ -5,7 +5,6 @@
 #define ROLL_NUMBER_LENGTH 10
 #define HASH_TABLE_SIZE 5
 
-// Define a structure for a block in the blockchain
 typedef struct Block {
     int index;
     char roll_number[ROLL_NUMBER_LENGTH + 1];
@@ -14,19 +13,17 @@ typedef struct Block {
     struct Block* next;
 } Block;
 
-// Define the hash table structure
+typedef struct Block* block;
+
 typedef struct HashTable {
     int size;
-    Block** table;
-    int* hashed_values;  // Array to store hashed values
+    block* table;
 } HashTable;
 
-// Define the structure for candidate information
 typedef struct Candidate {
     char name[20];
 } Candidate;
 
-// Hash function
 int hash(char* roll_number, int table_size) {
     int hash_value = 0;
     for (int i = 0; i < ROLL_NUMBER_LENGTH; i++) {
@@ -35,7 +32,6 @@ int hash(char* roll_number, int table_size) {
     return hash_value % table_size;
 }
 
-// Create a new block for the blockchain
 Block* createBlock(int index, char* roll_number, int vote, char* timestamp) {
     Block* new_block = (Block*)malloc(sizeof(Block));
     new_block->index = index;
@@ -47,7 +43,6 @@ Block* createBlock(int index, char* roll_number, int vote, char* timestamp) {
     return new_block;
 }
 
-// Insert a block into the hash table
 void insertBlock(HashTable* hash_table, Block* new_block) {
     int index = hash(new_block->roll_number, hash_table->size);
 
@@ -66,14 +61,8 @@ void insertBlock(HashTable* hash_table, Block* new_block) {
     // Insert at the beginning of the linked list at the index
     new_block->next = hash_table->table[index];
     hash_table->table[index] = new_block;
-
-    // Update the hashed value when inserting a new block
-    if (hash_table->hashed_values[index] == 0) {
-        hash_table->hashed_values[index] = hash(new_block->roll_number, hash_table->size);
-    }
 }
 
-// Calculate the total number of votes for each person
 void calculateVoteResults(HashTable* hash_table, int* vote_results) {
     for (int i = 0; i < hash_table->size; i++) {
         Block* current_block = hash_table->table[i];
@@ -86,7 +75,6 @@ void calculateVoteResults(HashTable* hash_table, int* vote_results) {
     }
 }
 
-// Display the vote results in descending order
 void displayVoteResults(int* vote_results, Candidate* candidates, int num_candidates) {
     printf("Vote Results:\n");
     for (int i = 0; i < num_candidates; i++) {
@@ -104,7 +92,6 @@ void displayVoteResults(int* vote_results, Candidate* candidates, int num_candid
     }
 }
 
-// Display the contents of the hash table
 void displayHashTable(HashTable* hash_table) {
     for (int i = 0; i < hash_table->size; i++) {
         printf("Index %d:", i);
@@ -130,7 +117,6 @@ void displayScammers(HashTable* hash_table) {
     }
 }
 
-
 int main() {
     // Set the size of the hash table
     int table_size = HASH_TABLE_SIZE;
@@ -140,12 +126,10 @@ int main() {
     HashTable* hash_table = (HashTable*)malloc(sizeof(HashTable));
     hash_table->size = table_size;
     hash_table->table = (Block**)malloc(table_size * sizeof(Block*));
-    hash_table->hashed_values = (int*)malloc(table_size * sizeof(int));
 
     // Initialize each slot in the hash table to NULL
     for (int i = 0; i < table_size; i++) {
         hash_table->table[i] = NULL;
-        hash_table->hashed_values[i] = 0;  // Initialize hashed values to 0
     }
 
     // Create an array of candidates
@@ -163,29 +147,27 @@ int main() {
     }
 
     // Simulate voters giving votes
-
-            Block* new_block = createBlock(1, "2022115064", 2, "2023-01-01 10:00:00");
-            insertBlock(hash_table, new_block);
-             new_block = createBlock(1, "2022115064", 4, "2023-01-01 10:00:00");
-            insertBlock(hash_table, new_block);
-             new_block = createBlock(1, "2022115062", 1, "2023-01-01 10:00:00");
-            insertBlock(hash_table, new_block);
-             new_block = createBlock(1, "2022115061", 5, "2023-01-01 10:00:00");
-            insertBlock(hash_table, new_block);
-             new_block = createBlock(1, "2022115016", 5, "2023-01-01 10:00:00");
-            insertBlock(hash_table, new_block);
-             new_block = createBlock(1, "2022115060", 5, "2023-01-01 10:00:00");
-            insertBlock(hash_table, new_block);
-        
+    Block* new_block = createBlock(1, "2022115064", 2, "2023-01-01 10:00:00");
+    insertBlock(hash_table, new_block);
+    new_block = createBlock(1, "2022115064", 4, "2023-01-01 10:00:00");
+    insertBlock(hash_table, new_block);
+    new_block = createBlock(1, "2022115062", 1, "2023-01-01 10:00:00");
+    insertBlock(hash_table, new_block);
+    new_block = createBlock(1, "2022115061", 5, "2023-01-01 10:00:00");
+    insertBlock(hash_table, new_block);
+    new_block = createBlock(1, "2022115016", 5, "2023-01-01 10:00:00");
+    insertBlock(hash_table, new_block);
+    new_block = createBlock(1, "2022115060", 5, "2023-01-01 10:00:00");
+    insertBlock(hash_table, new_block);
 
     // Calculate and display the vote results
     calculateVoteResults(hash_table, vote_results);
     displayVoteResults(vote_results, candidates, num_candidates);
-    
 
     // Display the contents of the hash table
     displayHashTable(hash_table);
     displayScammers(hash_table);
+
     // Free allocated memory
     for (int i = 0; i < table_size; i++) {
         Block* current_block = hash_table->table[i];
@@ -196,9 +178,7 @@ int main() {
         }
     }
 
-
     free(hash_table->table);
-    free(hash_table->hashed_values);
     free(hash_table);
 
     return 0;
